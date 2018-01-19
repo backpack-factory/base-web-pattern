@@ -1,19 +1,26 @@
-module.exports = {
-  recipes: ['base-pattern'],
-  target: 'web',
+const path = require('path')
 
-  updateConfig: (config) => {
-    config.webpack.output.publicPath = '/build/'
-    config.webpack.module.rules.push({
-      test: /\.css$/,
-      use: ['style-loader', 'css-loader']
-    })
-    return config
+module.exports = {
+  patterns: ['base-pattern'],
+
+  webpack: {
+    target: 'web',
+    output: { publicPath: '/build/' },
+    module: {
+      rules: [{
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
+      }]
+    }
   },
 
   scripts: {
     dev: (config, webpack) => {
       const WebpackDevServer = require('webpack-dev-server')
+
+      const nodeModules = config.paths.patterns.map(p => path.join(p, 'node_modules'))
+      config.webpack.resolve.modules.push(...nodeModules)
+      config.webpack.resolveLoader.modules.push(...nodeModules)
 
       const compiler = webpack(config.webpack)
       const server = new WebpackDevServer(compiler, {
